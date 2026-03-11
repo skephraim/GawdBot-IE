@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  GawdBotE Backend — macOS launchd service
+  Install:   cp daemon/com.gawdbote.backend.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.gawdbote.backend.plist
+  Uninstall: launchctl unload ~/Library/LaunchAgents/com.gawdbote.backend.plist && rm ~/Library/LaunchAgents/com.gawdbote.backend.plist
+  Logs:      tail -f /tmp/gawdbote-backend.log
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.gawdbote.backend</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>REPLACE_WITH_FULL_PATH/GawdBotE/backend/main.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>REPLACE_WITH_FULL_PATH/GawdBotE/backend</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/gawdbote-backend.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/gawdbote-backend.err</string>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+</dict>
+</plist>

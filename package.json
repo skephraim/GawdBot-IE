@@ -1,0 +1,22 @@
+{
+  "name": "gawdbote",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["frontend", "interfaces/telegram", "interfaces/discord", "interfaces/cli"],
+  "scripts": {
+    "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "dev:backend": "cd backend && python3 -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:frontend": "cd frontend && bun dev",
+    "start": "concurrently \"bun run start:backend\" \"bun run start:frontend\"",
+    "start:backend": "cd backend && python3 main.py",
+    "start:frontend": "cd frontend && bun start",
+    "start:telegram": "cd interfaces/telegram && bun run start",
+    "start:cli": "cd interfaces/cli && bun run start",
+    "test:connections": "python3 setup/test-connections.py",
+    "setup:verify": "python3 setup/verify.py",
+    "install:deps": "python3 setup/install.py && bun install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

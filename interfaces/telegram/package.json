@@ -1,0 +1,13 @@
+{
+  "name": "gawdbote-telegram",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "bun run bot.ts",
+    "dev": "bun --watch bot.ts"
+  },
+  "dependencies": {
+    "grammy": "^1.21.0",
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
