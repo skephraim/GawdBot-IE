@@ -226,6 +226,51 @@ async def websocket_endpoint(ws: WebSocket):
         manager.disconnect(ws)
 
 
+# ============================================================
+# MOBILE — Device registration + Push notifications
+# ============================================================
+
+# In-memory device token store (replace with DB for production)
+_device_tokens: dict[str, str] = {}  # token -> platform
+
+
+class DeviceRegisterRequest(BaseModel):
+    token: str
+    platform: str = "android"
+
+
+class NotifyRequest(BaseModel):
+    token: str
+    title: str
+    body: str
+
+
+@app.post("/device/register")
+async def register_device(req: DeviceRegisterRequest):
+    _device_tokens[req.token] = req.platform
+    log.info(f"Device registered: {req.platform} ({req.token[:20]}...)")
+    return {"registered": True}
+
+
+@app.post("/notify")
+async def send_notification(req: NotifyRequest):
+    """Send a push notification via Expo Push API."""
+    import httpx
+    payload = {"to": req.token, "title": req.title, "body": req.body, "sound": "default"}
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://exp.host/--/api/v2/push/send",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+    return resp.json()
+
+
+@app.get("/device/tokens")
+async def get_device_tokens():
+    return {"tokens": list(_device_tokens.keys()), "count": len(_device_tokens)}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(

@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "GawdBot-IE",
+    "slug": "gawdbot-ie",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111827"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gawdbotie.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "GawdBot-IE needs mic access for voice messages.",
+        "NSCameraUsageDescription": "GawdBot-IE needs camera access to send photos.",
+        "NSPhotoLibraryUsageDescription": "GawdBot-IE needs photo library access to send images."
+      }
+    },
+    "android": {
+      "package": "com.gawdbotie.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#111827",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "permissions": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "READ_SMS",
+        "SEND_SMS",
+        "READ_CONTACTS"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-camera",
+        { "cameraPermission": "GawdBot-IE needs camera access to send photos." }
+      ],
+      [
+        "expo-image-picker",
+        { "photosPermission": "GawdBot-IE needs access to your photos." }
+      ],
+      [
+        "expo-av",
+        { "microphonePermission": "GawdBot-IE needs microphone access for voice messages." }
+      ]
+    ],
+    "scheme": "gawdbot-ie",
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

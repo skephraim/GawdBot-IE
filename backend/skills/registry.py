@@ -12,6 +12,12 @@ log = logging.getLogger("gawdbote.skills")
 
 SKILLS_DIR = Path(__file__).parent.parent.parent / "skills"
 
+# Also scan OpenClaw skills directory if it exists
+OPENCLAW_SKILLS_DIRS = [
+    Path.home() / "openclaw" / "skills",
+    Path.home() / ".openclaw" / "skills",
+]
+
 
 class Skill:
     def __init__(self, name: str, module, enabled: bool = True):
@@ -34,25 +40,31 @@ class SkillRegistry:
     def __init__(self):
         self._skills: dict[str, Skill] = {}
 
-    def discover(self):
-        """Scan skills/ directory and load available skills."""
-        if not SKILLS_DIR.exists():
+    def _load_from_dir(self, skills_dir: Path, prefix: str = ""):
+        """Load skills from a directory."""
+        if not skills_dir.exists():
             return
-
-        for skill_dir in SKILLS_DIR.iterdir():
+        for skill_dir in skills_dir.iterdir():
             if not skill_dir.is_dir():
                 continue
             main_py = skill_dir / "main.py"
             if not main_py.exists():
                 continue
+            name = f"{prefix}{skill_dir.name}" if prefix else skill_dir.name
             try:
-                spec = importlib.util.spec_from_file_location(skill_dir.name, main_py)
+                spec = importlib.util.spec_from_file_location(name, main_py)
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
-                self._skills[skill_dir.name] = Skill(skill_dir.name, module)
-                log.info(f"Loaded skill: {skill_dir.name}")
+                self._skills[name] = Skill(name, module)
+                log.info(f"Loaded skill: {name}")
             except Exception as e:
-                log.error(f"Failed to load skill {skill_dir.name}: {e}")
+                log.error(f"Failed to load skill {name}: {e}")
+
+    def discover(self):
+        """Scan skills/ directory and OpenClaw skills directories."""
+        self._load_from_dir(SKILLS_DIR)
+        for openclaw_dir in OPENCLAW_SKILLS_DIRS:
+            self._load_from_dir(openclaw_dir, prefix="openclaw/")
 
     def list_skills(self) -> list[dict]:
         return [s.to_dict() for s in self._skills.values()]
