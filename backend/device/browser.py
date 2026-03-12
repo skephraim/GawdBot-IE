@@ -3,10 +3,38 @@ GawdBotE — Browser Automation
 Playwright-based browser control for web tasks.
 """
 
+import ipaddress
 import logging
-from typing import Any
+import re
+from urllib.parse import urlparse
 
 log = logging.getLogger("gawdbote.device.browser")
+
+
+def _require_verified():
+    from agents.executor import _current_verified
+    if not _current_verified:
+        raise PermissionError("Identity not verified. Say your keyword to unlock browser control.")
+
+
+def _validate_url(url: str) -> str:
+    """Only allow https:// URLs to public hosts."""
+    parsed = urlparse(url)
+    if parsed.scheme not in ("https", "http"):
+        raise ValueError(f"Only http/https URLs are allowed, got: {parsed.scheme}")
+    hostname = parsed.hostname or ""
+    # Block private/loopback ranges
+    try:
+        addr = ipaddress.ip_address(hostname)
+        if addr.is_private or addr.is_loopback or addr.is_reserved:
+            raise ValueError(f"Private/loopback addresses are not allowed: {hostname}")
+    except ValueError as e:
+        if "does not appear to be" not in str(e):
+            raise  # Re-raise our own errors
+    # Block file:// and other schemes already handled above
+    if re.search(r'[<>"\']', url):
+        raise ValueError("URL contains invalid characters")
+    return url
 
 _browser = None
 _page = None
@@ -28,23 +56,28 @@ async def get_page(headless: bool = True):
 
 
 async def navigate(url: str, headless: bool = True) -> str:
+    _require_verified()
+    safe_url = _validate_url(url)
     page = await get_page(headless=headless)
     if not page:
         return "Browser not available"
-    await page.goto(url)
-    return f"Navigated to {url}"
+    await page.goto(safe_url)
+    return f"Navigated to {safe_url}"
 
 
 async def get_page_text(url: str | None = None, headless: bool = True) -> str:
+    _require_verified()
     page = await get_page(headless=headless)
     if not page:
         return "Browser not available"
     if url:
-        await page.goto(url)
+        safe_url = _validate_url(url)
+        await page.goto(safe_url)
     return await page.inner_text("body")
 
 
 async def click_element(selector: str, headless: bool = True) -> str:
+    _require_verified()
     page = await get_page(headless=headless)
     if not page:
         return "Browser not available"
@@ -53,6 +86,7 @@ async def click_element(selector: str, headless: bool = True) -> str:
 
 
 async def fill_input(selector: str, value: str, headless: bool = True) -> str:
+    _require_verified()
     page = await get_page(headless=headless)
     if not page:
         return "Browser not available"
@@ -61,6 +95,7 @@ async def fill_input(selector: str, value: str, headless: bool = True) -> str:
 
 
 async def screenshot_browser(headless: bool = True) -> bytes:
+    _require_verified()
     page = await get_page(headless=headless)
     if not page:
         return b""

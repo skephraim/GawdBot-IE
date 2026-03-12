@@ -20,12 +20,13 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     openai_api_key: str = ""
 
-    claude_smart_model: str = "claude-sonnet-4-6"
-    claude_fast_model: str = "claude-haiku-4-5-20251001"
+    claude_smart_model: str = "meta-llama/llama-3.3-70b-instruct:free"
+    claude_fast_model: str = "google/gemma-3-12b-it:free"
 
     # ---- Memory ----
     supabase_url: str = ""
     supabase_anon_key: str = ""
+    supabase_service_key: str = ""  # Service role key — never expose to clients
     sqlite_path: str = str(Path.home() / ".gawdbote" / "memory.db")
 
     # ---- User ----
@@ -52,9 +53,13 @@ class Settings(BaseSettings):
     # ---- Vision ----
     vision_provider: str = "claude"    # claude | openai
 
+    # ---- Security ----
+    api_key: str = ""  # Required: X-API-Key header for all endpoints
+
     # ---- Device Control ----
     device_control_enabled: bool = False
     browser_headless: bool = True
+    owner_keyword: str = ""  # Secret passphrase that grants full system access
 
     # ---- Services ----
     backend_port: int = 8000

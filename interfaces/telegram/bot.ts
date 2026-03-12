@@ -20,6 +20,11 @@ if (!BOT_TOKEN) {
   process.exit(1);
 }
 
+if (!ALLOWED_USER_ID) {
+  console.error("TELEGRAM_USER_ID not set! Refusing to start with open access.");
+  process.exit(1);
+}
+
 await mkdir(UPLOADS_DIR, { recursive: true });
 
 const bot = new Bot(BOT_TOKEN);
